@@ -45,7 +45,7 @@ public class Population {
 
 	// 2. Recombination
 	public void crossover(Individual parent1, Individual parent2){
-		//convert parents to StringBuffer
+		//convert parents to String
 		String p1 = parent1.toString();
 		String p2 = parent2.toString();
 
@@ -56,7 +56,32 @@ public class Population {
 		int min = Math.min(crossPoint1, crossPoint2);
 		int max = Math.max(crossPoint1, crossPoint2);
 		String child1 = p1.substring(0, min) + p2.substring(min, max) + p1.substring(max);
-		String child2 = p2.substring(0, min) + p1.substring(min, max) + p2.substring(max);		
+		String child2 = p2.substring(0, min) + p1.substring(min, max) + p2.substring(max);
+		
+		//for (int i=0; i < p1.length();i++){
+			//start at first index point
+			// loop to see if that value has been copied over yet
+		boolean isCopied =false;
+			while (min<max){
+			int value = p2.charAt(min);
+			for (int i=min; i<max; i++){ //loop over value to see if it's in middle segment (values that have been copied over already)
+				if (value == p1.charAt(min)){
+					isCopied = true;
+				}
+					
+			}
+			if (isCopied==true){
+				//do nothing
+			}
+			else{ //else the value of the index in P2 is not copied over yet
+				//see what that position is being taken by in the offsring 
+				
+			}
+			
+			min++;	
+			}
+			
+		//}
 		
 	}
 
