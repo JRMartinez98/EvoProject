@@ -1,9 +1,8 @@
-import java.util.Arrays;
 
 public class Population {
-	public static final int GRIDS = 9;
+	public final int GRIDS = 9;
 	public Individual[] pop;
-	public final static int popSize = 10;
+	public final int popSize = 10;
 	public Individual[] child = new Individual[popSize]; // create empty array of parents
 	public Individual[] parent = new Individual[2]; //2 parents
 
