@@ -1,12 +1,15 @@
 import java.util.Scanner;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 public class Individual{
-	public final int GRIDS = 9;
-	public Integer[][] gridf = new Integer [GRIDS][GRIDS];
-	public int counter = 0;
+	private final int GRIDS = 9;
+	private Integer[][] gridf = new Integer [GRIDS][GRIDS];
+	private int counter = 0;
+	private boolean [][] givens = new boolean[GRIDS][GRIDS];
+	private boolean [][] incorrect = new boolean[GRIDS][GRIDS];
 	//makes an individual 
 
 	public Individual() throws FileNotFoundException  {
@@ -14,7 +17,7 @@ public class Individual{
 
 
 		//read file and store into Sudoku array
-		boolean[][] givens = new boolean[GRIDS][GRIDS];
+		
 		for (int i=0; i< GRIDS; i++){
 			for (int j = 0; j < GRIDS; j++) {
 				gridf[i][j] = scan.nextInt();
@@ -35,18 +38,13 @@ public class Individual{
 			}
 			Collections.shuffle(rand); 
 			int counter = 0;
-
 			for (int j=0; j < GRIDS; j++) { //columns	
 				if (!givens[i][j]){ //if spot is a given
 					rand.remove(Integer.valueOf(gridf[i][j])); //remove the value of given at that point from list
 					rand.add(rand.size(), -1); //add random value at end of list in order to keep size
-
 				}
-
 			}
-
 			for (int j=0; j < GRIDS; j++) {	
-
 				if (givens[i][j]) { //if givens is true (the spot has a 0)
 					gridf[i][j] = rand.get(counter); //print the shuffled value there
 					counter++;
@@ -57,258 +55,293 @@ public class Individual{
 
 	//Used for fitness equation to determine whether a subgrid is unique.
 	public boolean isSubgridUnique(int subGrid) {
-
 		int counter = 0;
-
 		int [] repNumbers = new int [GRIDS];
-
 		if(subGrid == 0) {
-
 			for (int i = 0; i < 3; i++) {
-
 				for(int j = 0; j < 3; j++) {
- 
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[ gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 0; l <= i; l++) {
+								for(int k = 0; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else {
+							incorrect[i][j] = true;			
+						}
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
 					}
-
 				}
-
 			}
-
 		}
-
 		else if (subGrid == 1) {
-
 			for (int i = 0; i < 3; i++) {
-
 				for(int j = 3; j < 6; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[gridf[i][j] - 1 ]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						if(!givens[i][j]) {
+							for(int l = 0; l <= i; l++) {
+								for(int k = 3; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else {
+							incorrect[i][j] = true;
+						}
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
 					}
-
 				}
-
 			}
-
 		}
-
 		else if(subGrid == 2) {
-
 			for (int i = 0; i < 3; i++) {
-
 				for(int j = 6; j < 9; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[gridf[i][j] - 1 ]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 0; l <= i; l++) {
+								for(int k = 6; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
 					}
-
 				}
-
 			}
-
 		}
 
 		else if(subGrid == 3) {
-
 			for (int i = 3; i < 6; i++) {
-
-				for(int j = 3; j < 6; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
-						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
-					}
-
-				}
-
-			}
-
-		}
-
-		else if(subGrid == 4) {
-
-			for (int i = 3; i < 6; i++) {
-
-				for(int j = 3; j < 6; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
-						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
-					}
-
-				}
-
-			}
-
-		}
-
-		else if(subGrid == 5) {
-
-			for (int i = 3; i < 6; i++) {
-
-				for(int j = 6; j < 9; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
-						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
-					}
-
-				}
-
-			}
-
-		}
-
-		else if(subGrid == 6) {
-
-			for (int i = 6; i < 9; i++) {
-
 				for(int j = 0; j < 3; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[gridf[i][j] - 1  ]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 3; l <= i; l++) {
+								for(int k = 3; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else  if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
+						
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
 					}
-
 				}
-
 			}
-
 		}
-
-		else if(subGrid == 7) {
-
-			for (int i = 6; i < 9; i++) {
-
+		else if(subGrid == 4) {
+			for (int i = 3; i < 6; i++) {
 				for(int j = 3; j < 6; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 3; l <= i; l++) {
+								for(int k = 3; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else  if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
+						
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
 					}
-
 				}
-
 			}
-
 		}
-
-		else if(subGrid == 8) {
-
-			for (int i = 6; i < 9; i++) {
-
+		else if(subGrid == 5) {
+			for (int i = 3; i < 6; i++) {
 				for(int j = 6; j < 9; j++) {
-
-					repNumbers[ Integer.valueOf( gridf[i][j] - 1 ) ]++;
-
-					if (repNumbers[Integer.valueOf(gridf[i][j] - 1)] > 1) {
-
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 3; l <= i; l++) {
+								for(int k = 6; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else  if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
+						
 						counter++;
-
-						//System.out.println("Repetitions:" + gridf[i][j]);
-
+						
 					}
-
 				}
-
 			}
-
 		}
-
+		else if(subGrid == 6) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 0; j < 3; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 6; l <= i; l++) {
+								for(int k = 0; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else  if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
+						
+						
+						counter++;
+					
+					}
+				}
+			}
+		}
+		else if(subGrid == 7) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 3; j < 6; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 3; l <= i; l++) {
+								for(int k = 3; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else if(givens[i][j]) {
+							incorrect[i][j] = true;
+						}
+						
+						counter++;
+					}
+				}
+			}
+		}
+		else if(subGrid == 8) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 6; j < 9; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+						if(!givens[i][j]) {
+							for(int l = 6; l <= i; l++) {
+								for(int k = 6; k <= j; k++) {
+									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
+										incorrect[l][k] = true;		
+									}
+								}
+							}	
+						}
+						else if(givens[i][j]){
+							incorrect[i][j] = true;
+						}
+						
+						
+						counter++;
+					}
+				}
+			}
+		}
 		else {
-
 			throw new NullPointerException("Error inputing the subgrid");
-
 		}
-
 		if (counter != 0) {
-
 			return false;
-
 		}
-
-		//System.out.println(counter);
-
 		return true; 
 
 	}
-
-
 
 	//Used for fitness equation to determine whether a column is unique.
 	public boolean isColumnUnique(int column) {
 		int counter=0;
 		int [] repNumbers = new int [GRIDS];
+		int [] prevSpot = new int[GRIDS];
 		for (int i = 0; i < GRIDS; i++) { //rows
-
-			repNumbers[ Integer.valueOf( gridf[i][column] - 1 ) ]++;
-			if(repNumbers[ Integer.valueOf(gridf[i][column]) - 1] > 1) {
+			
+			repNumbers[gridf[i][column] - 1]++;
+			if(repNumbers[gridf[i][column] - 1] > 1) {
+				
+				//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+				if(!givens[i][column]) {
+					//int spot = prevSpot[gridf[i][column] - 1];
+					
+					for(int j = 0; j < GRIDS; j++) {
+						if ((i != j) && givens[j][column] && (gridf[j][column] == gridf[i][column])) {
+							incorrect[j][column] = true;
+						}
+					}
+				}
+				
+				if(givens[i][column]){
+					incorrect[i][column] = true;
+				}	
 				counter++;
 			}
+			prevSpot[gridf[i][column] - 1] = i;
 		}
 
 		if (counter != 0) {
 			return false;
 		}
-
 		return true;  
 	}
 
 	//Used for fitness equation to determine whether a row is unique.
 	public boolean isRowUnique(int row) {
-
 		int counter=0;
 		int [] repNumbers = new int [GRIDS];
 
 		for (int i = 0; i < GRIDS; i++) {
 
-			repNumbers[ Integer.valueOf( gridf[row][i] - 1 ) ]++;
-			if(repNumbers[ Integer.valueOf(gridf[row][i]) - 1] > 1) { 
+			repNumbers[ gridf[row][i] - 1]++;
+			if(repNumbers[ gridf[row][i] - 1] > 1) {
+				
+				//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
+				if(!givens[row][i]) {
+					for(int j = 0; j < GRIDS; j++) {
+						if ( (j != i) && givens[row][j] && gridf[row][j] == gridf[row][i]) {
+							incorrect[row][i] = true;
+						}
+					}
+				}
+				else if(givens[row][i]){
+					incorrect[row][i] = true;
+				}
+				
+				
 				counter++;
 			}
 		}
@@ -330,7 +363,41 @@ public class Individual{
 		}
 		return counter/27.0;
 	}
-
+	
+	//get Grid and returns as String.
+	public String getGridString() {
+		String gridString = "";
+		for (int i = 0; i < GRIDS; i++) {
+			for (int j = 0; j < GRIDS; j++) {
+				gridString += gridf[i][j];
+			}
+		}
+		return gridString;
+	}
+	
+	public String getGivenString() {
+		String givenString = "";
+		for (int i = 0; i < GRIDS; i++) {
+			for (int j = 0; j < GRIDS; j++) {
+				if(givens[i][j]) {
+					givenString += 1;
+				}
+				else {
+					givenString += 0;
+				}
+			}
+		}
+		return givenString;
+	}
+	
+	public boolean [][] getIncorrect() {
+		return incorrect;
+	}
+	
+	public Integer[][] getGrid() {
+		return gridf;
+	}
+	
 	public String toString() {
 		String result = "_________________________________________ \n";
 		for(int i=0; i < GRIDS; i++) { //rows 
