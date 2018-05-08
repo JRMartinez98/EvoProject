@@ -2,7 +2,7 @@ import java.io.*;
 
 public class Sudoku {
 	public static final int GENERATIONS = 500000;
-	private static final int POP_SIZE = 100;
+	private static final int POP_SIZE = 20;
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		
@@ -48,6 +48,7 @@ public class Sudoku {
 			genCount++;
 		}
 		
+		System.out.println(" No solution was found, please try again.");
 		
 		
 	}

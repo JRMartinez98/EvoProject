@@ -160,8 +160,8 @@ public class Individual{
 	//Used for fitness equation to determine whether a column is unique.
 	public boolean isColumnUnique(int column) {
 		int [] repNumbers = new int [GRIDS];
+		
 		for (int i = 0; i < GRIDS; i++) { //rows
-			
 			repNumbers[gridf[i][column] - 1]++;
 			if(repNumbers[gridf[i][column] - 1] > 1) {
 				return false;
@@ -175,7 +175,6 @@ public class Individual{
 		int [] repNumbers = new int [GRIDS];
 
 		for (int i = 0; i < GRIDS; i++) {
-
 			repNumbers[gridf[row][i] - 1]++;
 			if(repNumbers[gridf[row][i] - 1] > 1) {
 				return false;
