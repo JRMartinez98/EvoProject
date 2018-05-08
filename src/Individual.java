@@ -53,237 +53,51 @@ public class Individual{
 		}
 	}
 
-	//Used for fitness equation to determine whether a subgrid is unique.
-	public boolean isSubgridUnique(int subGrid) {
-		int counter = 0;
-		int [] repNumbers = new int [GRIDS];
-		if(subGrid == 0) {
-			for (int i = 0; i < 3; i++) {
-				for(int j = 0; j < 3; j++) {
-					repNumbers[ gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 0; l <= i; l++) {
-								for(int k = 0; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else {
-							incorrect[i][j] = true;			
-						}
-						counter++;
-					}
-				}
-			}
-		}
-		else if (subGrid == 1) {
-			for (int i = 0; i < 3; i++) {
-				for(int j = 3; j < 6; j++) {
-					repNumbers[gridf[i][j] - 1 ]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						if(!givens[i][j]) {
-							for(int l = 0; l <= i; l++) {
-								for(int k = 3; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else {
-							incorrect[i][j] = true;
-						}
-						counter++;
-					}
-				}
-			}
-		}
-		else if(subGrid == 2) {
-			for (int i = 0; i < 3; i++) {
-				for(int j = 6; j < 9; j++) {
-					repNumbers[gridf[i][j] - 1 ]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 0; l <= i; l++) {
-								for(int k = 6; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						counter++;
-					}
-				}
-			}
-		}
-
-		else if(subGrid == 3) {
-			for (int i = 3; i < 6; i++) {
-				for(int j = 0; j < 3; j++) {
-					repNumbers[gridf[i][j] - 1  ]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 3; l <= i; l++) {
-								for(int k = 3; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else  if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						
-						counter++;
-					}
-				}
-			}
-		}
-		else if(subGrid == 4) {
-			for (int i = 3; i < 6; i++) {
-				for(int j = 3; j < 6; j++) {
-					repNumbers[gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 3; l <= i; l++) {
-								for(int k = 3; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else  if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						
-						counter++;
-					}
-				}
-			}
-		}
-		else if(subGrid == 5) {
-			for (int i = 3; i < 6; i++) {
-				for(int j = 6; j < 9; j++) {
-					repNumbers[gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 3; l <= i; l++) {
-								for(int k = 6; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else  if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						
-						counter++;
-						
-					}
-				}
-			}
-		}
-		else if(subGrid == 6) {
-			for (int i = 6; i < 9; i++) {
-				for(int j = 0; j < 3; j++) {
-					repNumbers[gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 6; l <= i; l++) {
-								for(int k = 0; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else  if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						
-						
-						counter++;
-					
-					}
-				}
-			}
-		}
-		else if(subGrid == 7) {
-			for (int i = 6; i < 9; i++) {
-				for(int j = 3; j < 6; j++) {
-					repNumbers[gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 3; l <= i; l++) {
-								for(int k = 3; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else if(givens[i][j]) {
-							incorrect[i][j] = true;
-						}
-						
-						counter++;
-					}
-				}
-			}
-		}
-		else if(subGrid == 8) {
-			for (int i = 6; i < 9; i++) {
-				for(int j = 6; j < 9; j++) {
-					repNumbers[gridf[i][j] - 1]++;
-					if (repNumbers[gridf[i][j] - 1] > 1) {
-						//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-						if(!givens[i][j]) {
-							for(int l = 6; l <= i; l++) {
-								for(int k = 6; k <= j; k++) {
-									if ( ((i != l) && (j != k)) && gridf[l][k] == gridf[i][j] && givens[l][k]) {
-										incorrect[l][k] = true;		
-									}
-								}
-							}	
-						}
-						else if(givens[i][j]){
-							incorrect[i][j] = true;
-						}
-						
-						
-						counter++;
-					}
-				}
-			}
-		}
-		else {
-			throw new NullPointerException("Error inputing the subgrid");
-		}
-		if (counter != 0) {
-			return false;
-		}
-		return true; 
-
+	public Individual (Integer[][] grid, boolean [][] givens){
+		gridf = grid;
+		this.givens = givens;
+		this.evaluateFitness();
 	}
 
+	//Used for fitness equation to determine whether a subgrid is unique.
+	public boolean isSubgridUnique(int row, int column, int value) {
+		int counter = 0;
+		int i =  3 * ( (int) (row/3) );
+		int j =  3 * ( (int) (column/3) ); 
+		if(gridf[i][j] == value){
+			counter++;
+		}
+		if(gridf[i][j+1] == value){
+			counter++;
+		}
+		if(gridf[i][j+2] == value){
+			counter++;
+		}
+		if(gridf[i+1][j] == value){
+			counter++;
+		}
+		if(gridf[i+1][j+1] == value){
+			counter++;
+		}
+		if(gridf[i+1][j+2] == value){
+			counter++;
+		}
+		if(gridf[i+2][j] == value){
+			counter++;
+		}
+		if(gridf[i+2][j+1] == value){
+			counter++;
+		}
+		if(gridf[i+2][j+2] == value){
+			counter++;
+		}
+		if (counter > 1){
+			return false;
+		}
+		
+		return true;
+	}
+	
 	//Used for fitness equation to determine whether a column is unique.
 	public boolean isColumnUnique(int column) {
 		int counter=0;
@@ -313,12 +127,26 @@ public class Individual{
 			prevSpot[gridf[i][column] - 1] = i;
 		}
 
-		if (counter != 0) {
+		if (counter > 1) {
 			return false;
 		}
 		return true;  
 	}
 
+	//Used for fitness equation to determine whether a column is unique. Used in mutation to determine which values are swapped.
+	public boolean isColumnUnique(int column, int value) {
+		int counter = 0;
+		for (int i = 0; i < GRIDS; i++) {
+			if(gridf[i][column] == value) {
+				counter++;
+			}
+		}
+		
+		if (counter > 1) {
+			return false;
+		}
+		return true; 
+	}
 	//Used for fitness equation to determine whether a row is unique.
 	public boolean isRowUnique(int row) {
 		int counter=0;
@@ -346,7 +174,7 @@ public class Individual{
 			}
 		}
 
-		if (counter != 0) {
+		if (counter > 1) {
 			return false;
 		}
 		return true; 
@@ -356,14 +184,21 @@ public class Individual{
 	//1 point is awarded for every row, column, or subgrid that is unique
 	public double evaluateFitness(){
 		int counter = 0;
+		int subGridcounter = 0;
 		for (int i = 0; i < GRIDS; i++) {
-			if(this.isColumnUnique(i)) 					counter++;
-			if(this.isRowUnique(i))						counter++;
-			if(this.isSubgridUnique(i))					counter++;
+			if(this.isColumnUnique(i)) 											counter++;
+			if(this.isRowUnique(i))												counter++;
+			for(int j = 0; j < GRIDS; j++) {
+				if (subGridcounter%9 == 0 && subGridcounter != 0)				counter++;
+				for(int k = 0; k < GRIDS; k++) {
+					if(this.isSubgridUnique(j, k, i))					subGridcounter++;
+				}
+
+			}	
 		}
 		return counter/27.0;
 	}
-	
+
 	//get Grid and returns as String.
 	public String getGridString() {
 		String gridString = "";
@@ -390,6 +225,9 @@ public class Individual{
 		return givenString;
 	}
 	
+	public boolean [][] isGiven(){
+		return givens;
+	}
 	public boolean [][] getIncorrect() {
 		return incorrect;
 	}
@@ -417,6 +255,3 @@ public class Individual{
 		return result;
 	}
 }
-
-
-
