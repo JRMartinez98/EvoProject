@@ -1,23 +1,20 @@
 import java.util.Scanner;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Individual{
 	private final int GRIDS = 9;
 	private Integer[][] gridf = new Integer [GRIDS][GRIDS];
-	private int counter = 0;
 	private boolean [][] givens = new boolean[GRIDS][GRIDS];
-	private boolean [][] incorrect = new boolean[GRIDS][GRIDS];
-	//makes an individual 
-
+	private int fitness;
+	
+	//Constructor for the parent population. Reads from givens text file and inserts random numbers into the rows, providing an entirely random grid.
 	public Individual() throws FileNotFoundException  {
 		Scanner scan = new Scanner(new File("Givens.txt"));
 
 
 		//read file and store into Sudoku array
-		
 		for (int i=0; i< GRIDS; i++){
 			for (int j = 0; j < GRIDS; j++) {
 				gridf[i][j] = scan.nextInt();
@@ -30,6 +27,7 @@ public class Individual{
 		scan.close();
 
 		for (int i=0; i < GRIDS; i++) {
+			
 			//generate a new list of randoms for each row
 			ArrayList <Integer> rand = new ArrayList<Integer> ();
 
@@ -38,200 +36,181 @@ public class Individual{
 			}
 			Collections.shuffle(rand); 
 			int counter = 0;
+			//if spot is a given, removes the value of that given from the list.
 			for (int j=0; j < GRIDS; j++) { //columns	
-				if (!givens[i][j]){ //if spot is a given
-					rand.remove(Integer.valueOf(gridf[i][j])); //remove the value of given at that point from list
-					rand.add(rand.size(), -1); //add random value at end of list in order to keep size
+				if (!givens[i][j]){ 
+					rand.remove(Integer.valueOf(gridf[i][j])); //remove the value of a given at that point from list
 				}
 			}
+			//if spot is blank adds it to the grid
 			for (int j=0; j < GRIDS; j++) {	
-				if (givens[i][j]) { //if givens is true (the spot has a 0)
-					gridf[i][j] = rand.get(counter); //print the shuffled value there
+				if (givens[i][j]) { 
+					gridf[i][j] = rand.get(counter);
 					counter++;
 				}
 			}	
 		}
 	}
-
+	
+	//Constructor for the every generation after the first. takes the grid and the givens as parameters.
 	public Individual (Integer[][] grid, boolean [][] givens){
 		gridf = grid;
 		this.givens = givens;
-		this.evaluateFitness();
 	}
 
-	//Used for fitness equation to determine whether a subgrid is unique.
-	public boolean isSubgridUnique(int row, int column, int value) {
-		int counter = 0;
-		int i =  3 * ( (int) (row/3) );
-		int j =  3 * ( (int) (column/3) ); 
-		if(gridf[i][j] == value){
-			counter++;
+	//Method to determine if the subgrid is unique.
+	public boolean isSubgridUnique(int subGrid) {
+		int [] repNumbers = new int [GRIDS];
+		if(subGrid == 0) {
+			for (int i = 0; i < 3; i++) {
+				for(int j = 0; j < 3; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i][j+1] == value){
-			counter++;
+		else if (subGrid == 1) {
+			for (int i = 0; i < 3; i++) {
+				for(int j = 3; j < 6; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i][j+2] == value){
-			counter++;
+		else if(subGrid == 2) {
+			for (int i = 0; i < 3; i++) {
+				for(int j = 6; j < 9; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+1][j] == value){
-			counter++;
+		else if(subGrid == 3) {
+			for (int i = 3; i < 6; i++) {
+				for(int j = 3; j < 6; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+1][j+1] == value){
-			counter++;
+		else if(subGrid == 4) {
+			for (int i = 3; i < 6; i++) {
+				for(int j = 3; j < 6; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+1][j+2] == value){
-			counter++;
+		else if(subGrid == 5) {
+			for (int i = 3; i < 6; i++) {
+				for(int j = 6; j < 9; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+2][j] == value){
-			counter++;
+		else if(subGrid == 6) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 0; j < 3; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+2][j+1] == value){
-			counter++;
+		else if(subGrid == 7) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 3; j < 6; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if(gridf[i+2][j+2] == value){
-			counter++;
+		else if(subGrid == 8) {
+			for (int i = 6; i < 9; i++) {
+				for(int j = 6; j < 9; j++) {
+					repNumbers[gridf[i][j] - 1]++;
+					if (repNumbers[gridf[i][j] - 1] > 1) {
+						return false;
+					}
+				}
+			}
 		}
-		if (counter > 1){
-			return false;
+		else {
+			throw new NullPointerException("Error inputing the subgrid");
 		}
-		
-		return true;
+		return true; 
 	}
-	
+			
 	//Used for fitness equation to determine whether a column is unique.
 	public boolean isColumnUnique(int column) {
-		int counter=0;
 		int [] repNumbers = new int [GRIDS];
-		int [] prevSpot = new int[GRIDS];
 		for (int i = 0; i < GRIDS; i++) { //rows
 			
 			repNumbers[gridf[i][column] - 1]++;
 			if(repNumbers[gridf[i][column] - 1] > 1) {
-				
-				//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-				if(!givens[i][column]) {
-					//int spot = prevSpot[gridf[i][column] - 1];
-					
-					for(int j = 0; j < GRIDS; j++) {
-						if ((i != j) && givens[j][column] && (gridf[j][column] == gridf[i][column])) {
-							incorrect[j][column] = true;
-						}
-					}
-				}
-				
-				if(givens[i][column]){
-					incorrect[i][column] = true;
-				}	
-				counter++;
+				return false;
 			}
-			prevSpot[gridf[i][column] - 1] = i;
-		}
-
-		if (counter > 1) {
-			return false;
 		}
 		return true;  
 	}
 
-	//Used for fitness equation to determine whether a column is unique. Used in mutation to determine which values are swapped.
-	public boolean isColumnUnique(int column, int value) {
-		int counter = 0;
-		for (int i = 0; i < GRIDS; i++) {
-			if(gridf[i][column] == value) {
-				counter++;
-			}
-		}
-		
-		if (counter > 1) {
-			return false;
-		}
-		return true; 
-	}
 	//Used for fitness equation to determine whether a row is unique.
 	public boolean isRowUnique(int row) {
-		int counter=0;
 		int [] repNumbers = new int [GRIDS];
 
 		for (int i = 0; i < GRIDS; i++) {
 
-			repNumbers[ gridf[row][i] - 1]++;
-			if(repNumbers[ gridf[row][i] - 1] > 1) {
-				
-				//Special case in which there is a given spot but the given number appears before. Sets the number as incorrect while keeping the given spot correct
-				if(!givens[row][i]) {
-					for(int j = 0; j < GRIDS; j++) {
-						if ( (j != i) && givens[row][j] && gridf[row][j] == gridf[row][i]) {
-							incorrect[row][i] = true;
-						}
-					}
-				}
-				else if(givens[row][i]){
-					incorrect[row][i] = true;
-				}
-				
-				
-				counter++;
+			repNumbers[gridf[row][i] - 1]++;
+			if(repNumbers[gridf[row][i] - 1] > 1) {
+				return false;
 			}
-		}
-
-		if (counter > 1) {
-			return false;
 		}
 		return true; 
 	}
 
-	//Fitness function for the individuals. Calculated by dividing the number of points by the maximum amount of points (27). 
-	//1 point is awarded for every row, column, or subgrid that is unique
-	public double evaluateFitness(){
+	//Fitness function for the individuals. Calculated by dividing the number of points by the maximum amount of points (9). 
+	//1 point is awarded for every row, column, and subgrid that is unique
+	public int evaluateFitness(){
 		int counter = 0;
-		int subGridcounter = 0;
 		for (int i = 0; i < GRIDS; i++) {
-			if(this.isColumnUnique(i)) 											counter++;
-			if(this.isRowUnique(i))												counter++;
-			for(int j = 0; j < GRIDS; j++) {
-				if (subGridcounter%9 == 0 && subGridcounter != 0)				counter++;
-				for(int k = 0; k < GRIDS; k++) {
-					if(this.isSubgridUnique(j, k, i))					subGridcounter++;
-				}
-
-			}	
+			if(this.isColumnUnique(i) && this.isRowUnique(i) && this.isSubgridUnique(i))		
+				counter++;
 		}
-		return counter/27.0;
+		fitness = counter;
+		return fitness;
 	}
-
-	//get Grid and returns as String.
-	public String getGridString() {
-		String gridString = "";
+	//Method to determine if the grid is solved.
+	public boolean isSolved() {
 		for (int i = 0; i < GRIDS; i++) {
-			for (int j = 0; j < GRIDS; j++) {
-				gridString += gridf[i][j];
+			if( !(this.isColumnUnique(i) && this.isRowUnique(i) && this.isSubgridUnique(i)) ){
+				return false;
 			}
 		}
-		return gridString;
+		return true;
 	}
 	
-	public String getGivenString() {
-		String givenString = "";
-		for (int i = 0; i < GRIDS; i++) {
-			for (int j = 0; j < GRIDS; j++) {
-				if(givens[i][j]) {
-					givenString += 1;
-				}
-				else {
-					givenString += 0;
-				}
-			}
-		}
-		return givenString;
-	}
-	
+	//returns the givens of the individuals.
 	public boolean [][] isGiven(){
 		return givens;
 	}
-	public boolean [][] getIncorrect() {
-		return incorrect;
-	}
 	
+	//returns the grid of the individual.
 	public Integer[][] getGrid() {
 		return gridf;
 	}

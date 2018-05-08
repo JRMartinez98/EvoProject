@@ -1,66 +1,85 @@
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class Population {
 	private final int GRIDS = 9;
 	private Individual[] pop;
-	private final int popSize = 10;
-	private Individual[] child = new Individual[popSize]; // create empty array of parents
+	private final int popSize;
+	private Individual[] child; // create empty array of parents
 	private Individual[] parent = new Individual[2]; //2 parents
-	public int fittestIndex;
+	private int fittestIndex;
+	private int highestFit;
 
-	public Population(Individual[] pop) {
+	public Population(Individual[] pop, int popSize) {
 		this.pop = pop;
+		this.popSize = popSize;
+		child = new Individual[popSize];
 
 	}
 
-	// 1. Parent Selection
-	// for loop to evaluate fitness and implement tournament selection
+	// Tournament selection.
+	// Int k determines how many Individuals you want to compete to become parents. k should always be even to avoid some individuals not competing.
 	public Individual [] tournamentSelection(int k) {
-		int i = 0;
-		Individual[] rand = new Individual[k]; // choose 2 randoms to compete
-		while (i != child.length && child[i] == null) { // while the child array is empty
-			//loop to fill up parent array
-			int j=0;
-			while (j < parent.length){
-				// choose k=2 random individuals from population
-				rand[0] = pop[(int) (Math.random() * popSize - 1)];
-				rand[1] = pop[(int) (Math.random() * popSize - 1)];
-				// fill the parent array with the 'best'/fittest individual
-				if (rand[0].evaluateFitness() >= rand[1].evaluateFitness())
-					parent[j] = rand[0];
-				else {
-					parent[j] = rand[1];
-				}
-				j++;
+		
+		//Special cases for k. 
+			//If k is bigger than the population size, then the popSize is used.
+			//If k is lower than 2 then it's set to two so the parents can be chosen.
+		if(k >= popSize)		k = popSize - 1;
+		if ( k < 2)				k = 2;
+		
+		Individual[] choices = new Individual[k]; // choose 2 randoms to compete
+		Random random = new Random();
+		
+		int i = 0; 
+		// while the child array is empty
+		while (i != child.length && child[i] == null) {
+			int counter = 0;
+			
+			//chooses Individuals for tournament
+			while (counter < k) {
+				choices[counter++] = pop[random.nextInt(popSize)];
 			}
-			//After parents are chosen, call recombination method
-			Integer[][] childarr = this.crossover(parent[0], parent[1], 0.6);
-			Individual person = new Individual(childarr, parent[0].isGiven());
-			person.evaluateFitness();
+			
+			//finds the index for the two fittest individuals in the chosen Individuals.
+			int max  = Integer.MIN_VALUE;
+			int max2 = Integer.MIN_VALUE;
+			int fitIndex2 = 0;
+			for(int j = 0; j < k; j++) {
+				if(choices[j].evaluateFitness() > max){
+					max2 = max;
+					max = choices[j].evaluateFitness();
+					highestFit = max;
+					fittestIndex = j;
+				}
+				else if (choices[j].evaluateFitness() > max2) {
+					fitIndex2 = j;
+				}
+			}
+			
+			parent[0] = choices[fittestIndex];
+			parent[1] = choices[fitIndex2];
+			
+			//Make two individuals switching the order of the parents.
+			//The individual with the highest fitness is then added to the child array.
+			Integer[][] childarr  = this.crossover(parent[0], parent[1], 0.6);
+			Integer[][] childarr2 = this.crossover(parent[1], parent[0], 0.6);
+			Individual person     = new Individual(childarr, parent[0].isGiven());
+			Individual person2    = new Individual(childarr2, parent[0].isGiven());
 			this.mutation(person, 0.5);
-			child[i] = person;
-			/*
-			System.out.println();
-			System.out.println();
-			System.out.println();
-			System.out.println();
-
-
-			for (int m = 0; m < GRIDS; m++) {
-
-				for (int n = 0; n < GRIDS; n++) {
-					System.out.print(childarr[m][n] + " ");
-				}
-				System.out.println();
+			this.mutation(person2, 0.5);
+			
+			if(person.evaluateFitness() >= person2.evaluateFitness()) {
+				child[i] = person;
 			}
-			 */
+			else{
+				child[i] = person2;
+			}
+			
 			i++;
 		}
 		return child;
 	}
-
+	
+	//Returns the Average fitness of the population.
 	public double evaluateAvgPopFitness(){
 		double sum = 0.0;
 		for(int i = 0; i < popSize; i++) {
@@ -69,17 +88,12 @@ public class Population {
 		return sum/popSize;
 	}
 
-	public double highestFit() {
-		double max = 0.0;
-		for(int i = 0; i < popSize; i++) {
-			if(max < pop[i].evaluateFitness() ){
-				max = pop[i].evaluateFitness();
-				fittestIndex = i;
-			}
-		}
-		return max;
+	//Method that returns the highest fitness value in the Population.
+	//Also stores the highest index.
+	public int highestFit() {
+		return highestFit;
 	}
-
+	
 	public int getFittestIndex() {
 		return fittestIndex;
 	}
@@ -87,8 +101,8 @@ public class Population {
 		return pop;
 	}
 
-	public double lowestFit() {
-		double min = Double.MAX_VALUE;
+	public int lowestFit() {
+		int min = Integer.MAX_VALUE;
 		for(int i = 0; i < popSize; i++) {
 			if(min > pop[i].evaluateFitness() ){
 				min = pop[i].evaluateFitness();
@@ -115,69 +129,30 @@ public class Population {
 		}
 		return child;
 	}
-	// 2. Mutation
-	public void mutation(Individual child, double pm){
+	
+	//Method for mutation. 
+	//for each row, if the mutation rate is smaller than a random number, swap two values if these are not givens.
+	public void mutation(Individual child, double pm) {
 		Integer [][] grid = child.getGrid();
 		boolean [][] givens = child.isGiven();
 		Random rand = new Random();
-
-		if(Math.random() > pm) {
+		
+		for(int i = 0; i < GRIDS; i ++) {
+			int index1 = rand.nextInt(9); //random index value for column
+			int index2 = rand.nextInt(9); //random index value for column
 			
-
-			boolean isSwapped =  false;
-			while(!isSwapped){
-				//System.out.println("reached isSwapped while");
-				//If both indexes the same, keep looping until both numbers are different.
-				int row = rand.nextInt(8);
-				int index1 = rand.nextInt(8);
-				int index2 = rand.nextInt(8);
-				while(index1 == index2){
-					//System.out.println("reached index whiles");
-					index1 = rand.nextInt(8);
-					index2 = rand.nextInt(8);
-				}
-
-				if(givens[row][index1] && givens[row][index2]){
-					
-					//System.out.println("reached mutation if 1");
-					if(child.isColumnUnique(row, grid[row][index1]) && child.isColumnUnique(row, grid[row][index2])){
-						   // System.out.println("reached mutation if 2"); 
-						    int temp = grid[row][index1];
-							grid[row][index1] = grid[row][index2];
-							grid[row][index2] = temp;
-							isSwapped = true;
-						
-						//if(child.isSubgridUnique(row, index1, grid[row][index1]) && child.isSubgridUnique(row, index2, grid[row][index2])) {
-							
-							//System.out.println("reached mutation if 3");
-							
-						//}
-					}
+			while(index1 == index2){
+				index1 = rand.nextInt(9);
+				index2 = rand.nextInt(9);
+				
+			}
+			if(Math.random() > pm) {
+				if(givens[i][index1] && givens[i][index2]) {
+					int temp = grid[i][index1];
+					grid[i][index1] = grid[i][index2];
+					grid[i][index2] = temp;
 				}
 			}
 		}
-		
 	}
-
-	/*
-			//if the random number is higher than the mutation rate, mutate the incorrect numbers in each row, scramble them around for each child.
-			if(Math.random() > pm) {
-				ArrayList <Integer> scramble1 = new ArrayList <Integer>();
-				for (int j = 0; j < GRIDS; j++) {
-					//if value is a 1
-					if (error1[i][j]){	//if value is a duplicate		
-						scramble1.add(grid[i][j]);
-					}
-				}
-				Collections.shuffle(scramble1);
-				int counter = 0;
-				for (int j = 0; j < GRIDS; j++) {
-					if (error1[i][j]) {
-						grid[i][j] = scramble1.get(counter);
-						counter++;
-					}
-				}
-			}
-		} 
-	 */
 }
